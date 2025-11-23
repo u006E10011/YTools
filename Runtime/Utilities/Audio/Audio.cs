@@ -1,4 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -41,18 +41,34 @@ namespace YTools
         public Audio Play(string key, float volume = 1, float pitch = 1, AudioMixerGroup mixer = null)
         {
             Play(_data.Get(key.ToLower().Trim()), volume, pitch, mixer);
+
+#if UNITASK
+
             WaitForPlaybackCompletion().Forget();
+#else
+            StartCoroutine(WaitForPlaybackCompletion());
+#endif
             return this;
         }
 
-        private async UniTaskVoid WaitForPlaybackCompletion()
+#if UNITASK
+        private async Cysharp.Threading.Tasks.UniTaskVoid WaitForPlaybackCompletion()
         {
-            await UniTask.WaitUntil(() => !_source.isPlaying);
+            await Cysharp.Threading.Tasks.UniTask.WaitUntil(() => !_source.isPlaying);
 
             _pool.Return(this);
             Dispose();
         }
-        #region Settings
+#else
+        private IEnumerator WaitForPlaybackCompletion()
+        {
+            yield return new WaitUntil(() => !_source.isPlaying);
+
+            _pool.Return(this);
+            Dispose();
+        }
+#endif
+#region Settings
         public Audio SetVolume(float volume)
         {
             _source.volume = volume;
