@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 namespace YTools
 {
     public class ObjectPool<T> : PoolBase<T> where T : Component
     {
-        public ObjectPool(T prefab = null, int preloadCount = 0, bool autoPreload = true, Transform parent = null)
-            : base(() => PreloadAction(prefab), GetAction, ReturnAction, preloadCount, autoPreload)
+        public ObjectPool(T prefab, int preloadCount = 0, bool autoPreload = true, System.Action<T> init = null, Transform parent = null)
+            : base(() => PreloadAction(prefab), GetAction, ReturnAction, init, preloadCount, autoPreload)
         {
             SetParent(parent);
         }
@@ -19,6 +20,14 @@ namespace YTools
         {
             foreach (var item in Pool)
                 action?.Invoke(item);
+
+            return this;
+        }
+
+        public ObjectPool<T> ForEach(System.Action<T, int> action)
+        {
+            for (int i = 0; i < Pool.Count; i++)
+                action?.Invoke(AllItems[i], i);
 
             return this;
         }

@@ -26,10 +26,10 @@ namespace YTools
 
         public AudioClip Get(string key)
         {
-            if (_clip.TryGetValue(key, out var clip))
+            if (_clip.TryGetValue(key.ToLower().Trim(), out var clip))
                 return clip;
 
-            Message.Send($"Clip is null by key [{key.Color(ColorType.Cyan)}]");
+            Message.Send($"Clip is null by key [{key.ToLower().Trim().Color(ColorType.Cyan)}]");
             return null;
         }
     }

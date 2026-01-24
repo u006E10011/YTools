@@ -14,7 +14,7 @@ namespace YTools
 
         private void OnValidate()
         {
-            _button = GetComponent<Button>();
+            _button ??= GetComponent<Button>();
         }
 
         private void OnEnable()

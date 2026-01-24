@@ -8,7 +8,7 @@ namespace YTools
         [SerializeField] private string _ru;
         [SerializeField] private string _en;
 
-        [SerializeField] private bool _isAutoSet = true;
+        [SerializeField] private bool _isAutoUpdate = true;
         [SerializeField] private bool _updateOfTick = true;
 
         [SerializeField] private bool _isTranslateByKey;
@@ -16,7 +16,7 @@ namespace YTools
 
         [SerializeField] private TMP_Text _text;
 
-        public LocalizationData Data => LocalizationProvider.Data;
+        private LocalizationText _localizationText;
 
         private void OnValidate()
         {
@@ -26,32 +26,40 @@ namespace YTools
             SetFont();
         }
 
+        private void Awake() => Init(_key);
+
         private void OnEnable()
         {
-            if (_isAutoSet)
-                SetTranslate();
+            if (_isAutoUpdate)
+                UpdateText();
         }
 
         private void Update()
         {
-            if(_updateOfTick)
-                SetTranslate();
+            if (_updateOfTick)
+                UpdateText();
         }
 
-        public Localization SetTranslate(string end = "")
+        public Localization Init(string key)
         {
-            if (_isTranslateByKey && string.IsNullOrEmpty(_key) == false)
-                _text.text = LocalizationProvider.Get(_key) + end;
-            else
-                _text.text = (LocalizationProvider.Type == LanguageType.RU ? _ru : _en) + end;
+            if (_isTranslateByKey)
+            {
+                if (string.IsNullOrEmpty(LocalizationProvider.Data.Data.Find(data => data.Key == key).Key) == false)
+                    Message.Send($"Not found key: {key}", context: this);
+
+                _localizationText = LocalizationProvider.GetLocalizationText(key);
+                _key = key;
+            }
 
             return this;
         }
 
-        public Localization SetTranslate(string key, string end = "")
+        public Localization UpdateText(string end = "")
         {
-            if (string.IsNullOrEmpty(key) == false)
-                _text.text = LocalizationProvider.Get(key) + end;
+            if (_isTranslateByKey)
+                _text.text = (LocalizationProvider.Type == LanguageType.RU ? _localizationText.RU : _localizationText.EN) + end;
+            else
+                _text.text = (LocalizationProvider.Type == LanguageType.RU ? _ru : _en) + end;
 
             return this;
         }
@@ -70,8 +78,8 @@ namespace YTools
 
         private void SetFont()
         {
-            if (_text && Data && Data.Font)
-                _text.font = Data.Font;
+            if (_text && LocalizationProvider.Data && LocalizationProvider.Data.Font)
+                _text.font = LocalizationProvider.Data.Font;
         }
     }
 }

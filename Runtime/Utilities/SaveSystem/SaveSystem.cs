@@ -8,11 +8,10 @@ namespace YTools
         private static string savePath
         {
             get =>
-#if !UNITY_EDITOR && !UNITY_WEBGL
-         Path.Combine(Application.persistentDataPath, "save.json");
-#else
-        "/Assets/Project/Resources/SaveData.json";
-#endif
+            //#if !UNITY_EDITOR && !UNITY_WEBGL
+            //Path.Combine(Application.persistentDataPath, "save.json");
+            Path.Combine(Application.dataPath, "/Assets/Project/Saves/save.json");
+//#endif
         }
 
         private static SaveData _data;
@@ -62,6 +61,7 @@ namespace YTools
                 else
                 {
                     _data = new SaveData();
+                    Save();
                     Message.Send("No save file found. Creating new data");
                 }
             }

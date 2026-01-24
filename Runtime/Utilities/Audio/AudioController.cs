@@ -6,24 +6,30 @@ namespace YTools
     {
         private static ObjectPool<Audio> _pool;
         private static Transform _transform => Instance.transform;
+        private static AudioData _data;
 
         [RuntimeInitializeOnLoadMethod]
         public static void Init()
         {
-            var data = Resources.Load<AudioData>(nameof(AudioData)).Init();
-            var source = new GameObject().AddComponent<Audio>();
-            var index = 0;
+            _data = Resources.Load<AudioData>($"{nameof(YTools)}/{nameof(AudioData)}")?.Init();
 
-            _pool = new ObjectPool<Audio>(source, data.Preload, true, _transform).ForEach(x =>
+            if (_data == null)
             {
-                x.Init($"Audio {index}", _pool, data, _transform);
-                index++;
+                Message.Send("AudioData in null", DebugType.Error);
+                return;
+            }
+
+            var source = new GameObject().AddComponent<Audio>();
+
+            _pool = new ObjectPool<Audio>(source, _data.Preload, true, parent: _transform).ForEach((x, index) =>
+            {
+                x.Init($"Audio {index}", _pool, _data, _transform);
             });
         }
 
-        public static Audio Get(System.Action<Audio> callback)
+        public static Audio Get(System.Action<Audio> callback = null)
         {
-            var source = _pool.Get(item => item.Init($"[Created] Audio", _pool, Resources.Load<AudioData>(nameof(AudioData)), _transform));
+            var source = _pool.Get(item => item.Init($"[Created] Audio", _pool, _data, _transform));
             callback?.Invoke(source);
             return source;
         }

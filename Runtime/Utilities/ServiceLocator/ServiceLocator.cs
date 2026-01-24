@@ -5,7 +5,7 @@ namespace YTools
     public class ServiceLocator
     {
         private static ServiceLocator _instance;
-        public static ServiceLocator Instance { get => _instance ??= new(); }
+        public static ServiceLocator Instance => _instance ??= new();
 
         private readonly Dictionary<string, IService> _services = new();
 

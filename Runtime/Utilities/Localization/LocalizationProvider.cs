@@ -7,7 +7,7 @@ namespace YTools
     {
         static LocalizationProvider()
         {
-            Data = Data == null ? Resources.Load<LocalizationData>("Data/" + nameof(LocalizationData)) ?? ScriptableObject.CreateInstance<LocalizationData>() : Data;
+            Data = Data == null ? Resources.Load<LocalizationData>($"{nameof(YTools)}/{nameof(LocalizationData)}") ?? ScriptableObject.CreateInstance<LocalizationData>() : Data;
             _localization = Data.GetTranslateAsDictionary();
         }
 
@@ -30,6 +30,11 @@ namespace YTools
         {
             LocalizationText data = _localization.ContainsKey(key.ToLower()) ? _localization[key.ToLower()] : Data.DefaultValue();
             return (Type == LanguageType.RU ? data.RU : data.EN) + end;
+        }
+
+        public static LocalizationText GetLocalizationText(string key)
+        {
+            return _localization.ContainsKey(key.ToLower()) ? _localization[key.ToLower()] : Data.DefaultValue();
         }
 
         public static string GetTextByLanguage(LocalizationText localization)
